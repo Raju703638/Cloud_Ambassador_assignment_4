@@ -1,0 +1,34 @@
+import numpy as np
+
+def data_quality_checks(df):
+    # Check for missing values
+    missing_values = df.isnull().sum()
+    
+    # Check for duplicates
+    duplicate_rows = df[df.duplicated()]
+    duplicate_count = duplicate_rows.shape[0]
+   
+    for col in df.columns:
+        if df[col].dtype == object and df[col].str.endswith('%').any():
+            df[col] = df[col].str.rstrip('%').replace('', np.nan).astype(float)
+    
+    outliers = {}
+    numerical_cols = df.select_dtypes(include=['float64', 'int64']).columns
+    for col in numerical_cols:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        outlier_condition = (df[col] < (Q1 - 1.5 * IQR)) | (df[col] > (Q3 + 1.5 * IQR))
+        outliers[col] = df[col][outlier_condition].tolist()
+
+
+    summary = {
+        "missing_values_per_column": missing_values[missing_values > 0].to_dict(),
+        "duplicate_rows_count": duplicate_count,
+        "outliers": {k: v for k, v in outliers.items() if v}  # Only keep columns with detected outliers
+    }
+    
+    return summary
+
+quality_report = data_quality_checks(df)
+quality_report
