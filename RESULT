@@ -1,0 +1,5 @@
+
+'missing_values_per_column': {},
+ 'duplicate_rows_count': 0,
+ 'outliers': {'Global AI Market Value(in Billions)': [1810.0],
+  'AI Adoption (%)': [10.0, 63.0]}
